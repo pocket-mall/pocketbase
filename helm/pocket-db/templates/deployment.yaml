@@ -33,17 +33,19 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/pb/pocketbase"]
+          args: ["serve", "--http=0.0.0.0:8080", "--debug"]
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /_
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /_
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
