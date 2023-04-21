@@ -4,6 +4,9 @@
 
 replicaCount: 1
 
+node:
+  hostname: hostname
+
 image:
   repository: nginx
   pullPolicy: IfNotPresent

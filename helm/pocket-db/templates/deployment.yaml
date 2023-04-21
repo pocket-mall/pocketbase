@@ -47,6 +47,13 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /pb/pb_data
+              name: {{ include "pocket-db.fullname" . }}-pv
+      volumes:
+        - name: {{ include "pocket-db.fullname" . }}-pv
+          persistentVolumeClaim:
+            claimName: {{ include "pocket-db.fullname" . }}-pvc                          
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
