@@ -1,0 +1,47 @@
+name: ci-helm-ghcr
+permissions:
+  packages: write
+  contents: read
+on:
+  push:
+    branches:
+      - main
+      - staging
+      - develop
+    tags:
+      - "v*"
+  pull_request:
+
+env:
+  CHART_NAME: pocket-db
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: helm lint
+        run: |
+          helm lint ./helm/pocket-db
+      - name: helm login
+        run: |
+          echo ${{ secrets.GITHUB_TOKEN }} | helm registry login ghcr.io -u $ --password-stdin
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.CHART_NAME }}
+          tags: |
+            type=ref,prefix=0.0.0-,event=branch
+            type=semver,pattern={{version}}
+            type=raw,enable=${{ github.head_ref != '' }},priority=200,prefix=0.0.0-,value=${{ github.head_ref }}
+
+      - name: helm package
+        run: |
+          helm package ./helm/pocket-db --version ${{ steps.meta.outputs.version }}
+
+      - name: helm push
+        run: |
+          helm push $CHART_NAME-${{ steps.meta.outputs.version }}.tgz oci://ghcr.io/${{ github.repository_owner }}
