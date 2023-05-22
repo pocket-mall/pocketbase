@@ -9,7 +9,7 @@ node:
 
 image:
   repository: ghcr.io/pocket-mall/pocketbase
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "0.0.0-main"
 
